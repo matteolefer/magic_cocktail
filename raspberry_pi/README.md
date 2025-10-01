@@ -4,10 +4,12 @@ This directory hosts the Flask web interface that lets a Raspberry Pi drive the 
 
 ## Features
 
-* Web UI (Flask + Bootstrap) to choose a cocktail recipe from any browser.
+* Web UI powered by Flask with a nightclub-inspired theme, custom CSS, and Google Fonts typography to choose a cocktail recipe from any browser.
 * Recipes defined in `app.py` as pump proportions (three pumps supported by default).
 * UART protocol that sends commands such as `1:4000` to ask the STM32 to run pump **1** for **4000&nbsp;ms**.
 * Simple `/health` endpoint for monitoring.
+
+The interface mirrors the landing page defined in `index.html`, combining glassmorphism cards, neon-accented animations, and responsive layouts optimised for mobile and desktop screens. Buttons, forms, and progress indicators share the same motion and lighting cues, delivering a cohesive experience even on touch devices.
 
 ## Requirements
 
