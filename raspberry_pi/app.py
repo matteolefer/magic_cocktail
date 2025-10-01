@@ -43,6 +43,18 @@ def write_log(message: str) -> None:
         log_file.write(f"{timestamp} - {message}\n")
 
 
+class SerialPumpControllerError(Exception):
+    """Base exception for serial pump controller errors."""
+
+
+class SerialPumpTimeoutError(SerialPumpControllerError):
+    """Raised when the STM32 does not respond before the timeout."""
+
+
+class SerialPumpResponseError(SerialPumpControllerError):
+    """Raised when the STM32 returns an error message."""
+
+
 class SerialPumpController:
     """Wrapper around pyserial for sending pump activation commands."""
 
@@ -60,6 +72,19 @@ class SerialPumpController:
         )
         time.sleep(0.1)
 
+    def _read_response(self) -> str:
+        assert self._serial is not None
+        response_bytes = self._serial.read_until(b"\n")
+        if not response_bytes:
+            raise SerialPumpTimeoutError("Aucune réponse du STM32 (délai dépassé)")
+        response = response_bytes.decode("ascii", errors="ignore").strip()
+        write_log(f"Reçu: {response}")
+        if response == "OK":
+            return response
+        if response.upper().startswith("ERR"):
+            raise SerialPumpResponseError(f"STM32 a renvoyé une erreur: {response}")
+        raise SerialPumpResponseError(f"Réponse STM32 inattendue: {response}")
+
     def send_sequence(self, sequence: List[Tuple[str, float]]) -> None:
         self.ensure_connection()
         assert self._serial is not None
@@ -70,6 +95,7 @@ class SerialPumpController:
             self._serial.write(command.encode("ascii"))
             self._serial.flush()
             write_log(f"Sent command {command.strip()} to STM32")
+            self._read_response()
 
     def close(self) -> None:
         if self._serial and self._serial.is_open:
@@ -105,32 +131,42 @@ def prepare() -> str:
 
     recipe = RECIPES[recipe_name]
     sequence = recipe_to_sequence(recipe)
-    flash_messages: List[str] = []
+    flash_messages: List[Tuple[str, str]] = []
 
     for attempt in range(1, SERIAL_MAX_RETRIES + 1):
         try:
             controller.send_sequence(sequence)
-            flash_messages.append(f"Commande envoyée pour {recipe_name}")
+            flash_messages.append((f"Commande envoyée pour {recipe_name}", "success"))
             for pump_name, fraction in recipe.items():
                 duration = TOTAL_POUR_DURATION_S * fraction
                 flash_messages.append(
-                    f"{pump_name} activée pendant {duration:.1f} s"
+                    (f"{pump_name} activée pendant {duration:.1f} s", "success")
                 )
-            flash_messages.append("Cocktail prêt !")
+            flash_messages.append(("Cocktail prêt !", "success"))
             break
         except serial.SerialException as exc:  # type: ignore[attr-defined]
             error_message = f"Échec de la connexion série (tentative {attempt}): {exc}"
             write_log(error_message)
             if attempt == SERIAL_MAX_RETRIES:
-                flash_messages.append("Impossible de contacter le contrôleur STM32.")
+                flash_messages.append(
+                    ("Impossible de contacter le contrôleur STM32.", "error")
+                )
             else:
                 time.sleep(SERIAL_RETRY_DELAY_S)
+        except SerialPumpTimeoutError as exc:
+            write_log(str(exc))
+            flash_messages.append((str(exc), "error"))
+            break
+        except SerialPumpResponseError as exc:
+            write_log(str(exc))
+            flash_messages.append((str(exc), "error"))
+            break
         except ValueError as exc:
-            flash_messages.append(str(exc))
+            flash_messages.append((str(exc), "error"))
             break
 
-    for message in flash_messages:
-        flash(message, "info")
+    for message, cat in flash_messages:
+        flash(message, cat)
 
     return redirect(url_for("index"))
 
@@ -141,4 +177,4 @@ def healthcheck() -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)
