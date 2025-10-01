@@ -10,14 +10,18 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg-gradient: radial-gradient(circle at top left, rgba(79, 0, 255, 0.65), rgba(10, 10, 20, 0.9) 45%, rgba(0, 0, 0, 0.95));
+        --bg-gradient: radial-gradient(circle at 15% 20%, rgba(79, 0, 255, 0.68), transparent 60%),
+          radial-gradient(circle at 85% 10%, rgba(34, 211, 238, 0.38), transparent 55%),
+          radial-gradient(circle at 20% 85%, rgba(236, 72, 153, 0.3), transparent 60%),
+          linear-gradient(140deg, #020617 10%, #0b122b 45%, #11063a 90%);
         --accent: #8b5cf6;
         --accent-strong: #22d3ee;
+        --accent-hot: #f472b6;
         --text-primary: #f1f5f9;
-        --text-secondary: rgba(226, 232, 240, 0.7);
-        --glass: rgba(15, 20, 40, 0.72);
-        --glass-border: rgba(120, 120, 255, 0.2);
-        --surface: rgba(15, 16, 34, 0.8);
+        --text-secondary: rgba(226, 232, 240, 0.74);
+        --glass: rgba(10, 14, 32, 0.76);
+        --glass-border: rgba(120, 120, 255, 0.28);
+        --surface: rgba(15, 16, 34, 0.84);
       }
 
       * {
@@ -31,10 +35,23 @@
         align-items: center;
         justify-content: center;
         padding: clamp(2rem, 3vw, 4rem);
-        background: var(--bg-gradient), linear-gradient(140deg, #020617, #0f172a);
+        background: #010512;
+        background-image: var(--bg-gradient);
         font-family: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         color: var(--text-primary);
-        overflow-x: hidden;
+        overflow: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+        filter: blur(120px);
+        opacity: 0.6;
+        animation: breathe 14s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
       }
 
       .night-wrapper {
@@ -48,23 +65,29 @@
         position: absolute;
         inset: -12%;
         border-radius: 32px;
-        background: conic-gradient(from 120deg, rgba(34, 211, 238, 0.4), transparent 40%, rgba(168, 85, 247, 0.45) 70%, transparent 100%);
-        filter: blur(60px);
-        opacity: 0.5;
+        background: conic-gradient(from 120deg, rgba(34, 211, 238, 0.45), transparent 40%, rgba(168, 85, 247, 0.52) 70%, transparent 100%);
+        filter: blur(65px);
+        opacity: 0.55;
         z-index: 0;
-        animation: pulse 9s linear infinite;
+        animation: pulse 10s linear infinite;
       }
 
       .night-wrapper::after {
-        inset: -18%;
-        filter: blur(120px);
+        inset: -20%;
+        filter: blur(150px);
         opacity: 0.35;
-        animation-duration: 12s;
+        animation-duration: 16s;
       }
 
       @keyframes pulse {
         0%, 100% { transform: rotate(0deg) scale(1); }
         50% { transform: rotate(5deg) scale(1.05); }
+      }
+
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 0.55; }
+        40% { transform: scale(1.05); opacity: 0.75; }
+        70% { transform: scale(0.97); opacity: 0.45; }
       }
 
       .club-panel {
@@ -74,16 +97,41 @@
         padding: clamp(2rem, 4vw, 3.25rem);
         background: var(--glass);
         border: 1px solid var(--glass-border);
-        backdrop-filter: blur(20px) saturate(140%);
-        box-shadow: 0 30px 60px rgba(5, 10, 35, 0.65), 0 0 0 1px rgba(148, 163, 255, 0.05);
+        backdrop-filter: blur(24px) saturate(150%);
+        box-shadow: 0 30px 80px rgba(5, 10, 35, 0.75), inset 0 0 0 1px rgba(148, 163, 255, 0.05);
         display: grid;
         gap: clamp(1.5rem, 2vw, 2.5rem);
+        overflow: hidden;
+      }
+
+      .club-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(34, 211, 238, 0.18), transparent 55%),
+          radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.16), transparent 60%);
+        opacity: 0.9;
+        z-index: 0;
+        mix-blend-mode: screen;
+      }
+
+      .club-panel::after {
+        content: "";
+        position: absolute;
+        inset: 12% 18%;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 35px rgba(34, 211, 238, 0.12), 0 0 65px rgba(139, 92, 246, 0.08);
+        opacity: 0.7;
+        pointer-events: none;
       }
 
       .club-header {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        position: relative;
+        z-index: 1;
       }
 
       .club-title {
@@ -93,13 +141,15 @@
         text-transform: uppercase;
         margin: 0;
         color: #f8fafc;
-        text-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+        text-shadow: 0 0 18px rgba(34, 211, 238, 0.65), 0 0 32px rgba(139, 92, 246, 0.45);
       }
 
       .club-subtitle {
         margin: 0;
         font-size: clamp(1rem, 2vw, 1.2rem);
         color: var(--text-secondary);
+        position: relative;
+        z-index: 1;
       }
 
       form {
@@ -107,9 +157,11 @@
         gap: 1.5rem;
         padding: clamp(1.25rem, 2vw, 1.75rem);
         border-radius: 20px;
-        background: linear-gradient(145deg, rgba(45, 55, 140, 0.35), rgba(15, 20, 45, 0.6));
-        border: 1px solid rgba(120, 120, 255, 0.1);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        background: linear-gradient(150deg, rgba(36, 44, 104, 0.45), rgba(9, 15, 48, 0.8));
+        border: 1px solid rgba(120, 120, 255, 0.14);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+        position: relative;
+        z-index: 1;
       }
 
       label {
@@ -123,21 +175,22 @@
         width: 100%;
         padding: 0.9rem 1.1rem;
         border-radius: 14px;
-        border: 1px solid rgba(148, 163, 255, 0.25);
-        background: rgba(10, 12, 30, 0.85);
+        border: 1px solid rgba(148, 163, 255, 0.3);
+        background: rgba(8, 10, 28, 0.88);
         color: var(--text-primary);
         font-size: 1rem;
         font-family: inherit;
         appearance: none;
-        background-image: linear-gradient(135deg, rgba(34, 211, 238, 0.4), rgba(139, 92, 246, 0.25));
+        background-image: linear-gradient(135deg, rgba(34, 211, 238, 0.42), rgba(139, 92, 246, 0.3));
         background-blend-mode: soft-light;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
       }
 
       select:focus {
         outline: none;
         border-color: var(--accent-strong);
-        box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15);
+        box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.16);
+        transform: translateY(-1px);
       }
 
       .btn-prepare {
@@ -153,49 +206,73 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
         cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 15px 35px rgba(34, 211, 238, 0.35);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+        box-shadow: 0 18px 40px rgba(34, 211, 238, 0.35);
       }
 
       .btn-prepare::after {
         content: "";
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at top, rgba(255, 255, 255, 0.35), transparent 55%);
+        background: radial-gradient(circle at top, rgba(255, 255, 255, 0.4), transparent 55%);
         opacity: 0;
         transition: opacity 0.3s ease;
       }
 
       .btn-prepare:hover {
-        transform: translateY(-3px) scale(1.01);
-        box-shadow: 0 20px 45px rgba(34, 211, 238, 0.4);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 22px 55px rgba(34, 211, 238, 0.45);
+        filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.45));
       }
 
       .btn-prepare:hover::after {
         opacity: 1;
       }
 
+      .btn-prepare:active {
+        transform: translateY(0) scale(0.99);
+        box-shadow: 0 16px 30px rgba(34, 211, 238, 0.38);
+      }
+
       .recipes {
         display: grid;
         gap: 1rem;
+        position: relative;
+        z-index: 1;
       }
 
       .recipe-item {
         padding: 1.1rem 1.4rem;
         border-radius: 18px;
-        background: rgba(10, 12, 32, 0.7);
+        background: rgba(10, 12, 32, 0.72);
         border: 1px solid rgba(64, 87, 173, 0.35);
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
         transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+        overflow: hidden;
       }
 
       .recipe-item:hover {
         transform: translateY(-4px);
         border-color: var(--accent-strong);
-        box-shadow: 0 12px 30px rgba(34, 211, 238, 0.18);
+        box-shadow: 0 15px 35px rgba(34, 211, 238, 0.2);
+      }
+
+      .recipe-item::before {
+        content: "";
+        position: absolute;
+        inset: -35% 40% 60% -40%;
+        background: linear-gradient(120deg, rgba(34, 211, 238, 0.35), rgba(139, 92, 246, 0.2));
+        opacity: 0;
+        transform: rotate(12deg);
+        transition: opacity 0.4s ease;
+      }
+
+      .recipe-item:hover::before {
+        opacity: 1;
       }
 
       .recipe-name {
@@ -213,9 +290,11 @@
       .messages {
         border-radius: 18px;
         padding: 1.2rem 1.4rem;
-        background: rgba(16, 25, 55, 0.7);
+        background: rgba(11, 24, 44, 0.75);
         border: 1px solid rgba(20, 184, 166, 0.35);
-        box-shadow: inset 0 0 0 1px rgba(94, 234, 212, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(94, 234, 212, 0.1);
+        position: relative;
+        z-index: 1;
       }
 
       .messages ul {
@@ -228,6 +307,20 @@
       .messages li {
         color: var(--text-secondary);
         line-height: 1.45;
+        position: relative;
+        padding-left: 0.35rem;
+      }
+
+      .messages li::before {
+        content: "";
+        position: absolute;
+        left: -0.8rem;
+        top: 0.55rem;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--accent-strong), transparent 65%);
+        box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
       }
 
       .section-title {
@@ -239,6 +332,8 @@
         letter-spacing: 0.12em;
         color: rgba(244, 244, 255, 0.8);
         margin: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .section-title::before {
@@ -246,6 +341,7 @@
         width: 32px;
         height: 2px;
         background: linear-gradient(90deg, transparent, var(--accent-strong));
+        box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
       }
 
       @media (max-width: 768px) {
